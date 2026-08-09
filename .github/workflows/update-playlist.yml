@@ -1,0 +1,10 @@
+iptv-playlist-updater/          ← корень репозитория
+├── .github/                    ← папка 1 (с точкой)
+│   └── workflows/              ← папка 2 (внутри .github)
+│       └── update-playlist.yml ← файл (внутри workflows)
+├── sources/                    ← ваша папка со скриптом
+│   ├── iptv_smart_checker.py
+│   ├── requirements.txt
+│   ├── spisok.m3u
+│   └── ...
+└── (другие файлы)
