@@ -2,24 +2,19 @@ name: Update IPTV Playlist
 
 on:
   schedule:
-    # Запуск по расписанию (каждые 6 часов)
     - cron: '0 0,6,12,18 * * *'
-  # Возможность запуска вручную
   workflow_dispatch:
+
+permissions:
+  contents: write  # Это разрешение все еще необходимо
 
 jobs:
   update-playlist:
     runs-on: ubuntu-latest
-    # Ключевое изменение: явно даем права на запись в репозиторий
-    permissions:
-      contents: write
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-        # Используем стандартный токен для аутентификации
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -34,11 +29,17 @@ jobs:
         run: |
           python iptv_smart_checker.py
 
-      - name: Commit and push changes
-        run: |
-          git config --global user.name 'github-actions[bot]'
-          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-          # Добавляем файл плейлиста в отслеживаемые
-          git add playlist.m3u
-          # Проверяем, есть ли изменения, и если есть — коммитим и пушим
-          git diff --quiet && git diff --staged --quiet || (git commit -m "Auto-update playlist $(date +'%Y-%m-%d %H:%M:%S')" && git push)
+      # НОВЫЙ ШАГ: Публикуем файл playlist.m3u с помощью специального action
+      - name: Deploy playlist.m3u to repository
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./          # Публикуем из корня репозитория
+          publish_branch: main     # В ветку main
+          destination_dir: .       # В корень ветки main
+          keep_files: false        # Заменяем старый файл новым
+          user_name: 'github-actions[bot]'
+          user_email: 'github-actions[bot]@users.noreply.github.com'
+          commit_message: 'Auto-update playlist from workflow'
+          # Указываем, какие файлы публиковать (только playlist.m3u)
+          full_commit_message: 'Auto-update playlist from workflow'
