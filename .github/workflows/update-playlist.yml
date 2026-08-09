@@ -1,0 +1,40 @@
+name: Update IPTV Playlist
+
+on:
+  schedule:
+    - cron: '0 12 * * *'
+  workflow_dispatch:
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: |
+          pip install aiohttp aiofiles
+
+      - name: Run the IPTV checker script
+        run: |
+          cd sources
+          python iptv_smart_checker.py
+
+      - name: Upload playlist to Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: sources/playlist.m3u
+          tag_name: playlist
+          name: "IPTV Playlist"
+          body: "Автоматически обновлённый плейлист"
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
