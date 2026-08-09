@@ -1,0 +1,39 @@
+name: Update IPTV Playlist
+
+on:
+  schedule:
+    - cron: '0 12 * * *'
+  workflow_dispatch:
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: |
+          pip install aiohttp aiofiles
+
+      - name: Run the IPTV checker script
+        run: |
+          cd sources
+          python iptv_smart_checker.py
+
+      - name: Deploy playlist
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          branch: main
+          folder: sources
+          target-folder: sources
+          clean: false
+          commit-message: "Auto-update playlist from workflow"
