@@ -22,8 +22,8 @@ logger = logging.getLogger(__name__)
 
 class IPTVFastChecker:
     def __init__(self):
-        self.sources_dir = Path("sources")
-        self.spisok_file = Path("sources/spisok.m3u")
+        self.downloads_dir = Path(r"C:\Users\medlexx\Downloads\Telegram Desktop")
+        self.spisok_file = Path(r"C:\Users\medlexx\Downloads\Telegram Desktop\spisok.m3u")  # ИЗМЕНЕНО
         self.output_playlist = Path("playlist.m3u")
 
         # МАКСИМАЛЬНАЯ СКОРОСТЬ
@@ -138,7 +138,7 @@ class IPTVFastChecker:
         """Собирает все ссылки из всех файлов, кроме spisok.m3u"""
         all_urls = []
 
-        if not self.sources_dir.exists():
+        if not self.downloads_dir.exists():
             logger.error(f"Каталог {self.downloads_dir} не найден")
             return all_urls
 
