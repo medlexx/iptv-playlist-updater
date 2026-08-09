@@ -1,10 +1,37 @@
-iptv-playlist-updater/          ← корень репозитория
-├── .github/                    ← папка 1 (с точкой)
-│   └── workflows/              ← папка 2 (внутри .github)
-│       └── update-playlist.yml ← файл (внутри workflows)
-├── sources/                    ← ваша папка со скриптом
-│   ├── iptv_smart_checker.py
-│   ├── requirements.txt
-│   ├── spisok.m3u
-│   └── ...
-└── (другие файлы)
+name: Update IPTV Playlist
+
+on:
+  schedule:
+    - cron: '0 12 * * *'
+  workflow_dispatch:
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: |
+          pip install aiohttp aiofiles
+
+      - name: Run the IPTV checker script
+        run: |
+          cd sources
+          python iptv_smart_checker.py
+
+      - name: Commit and push changes
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          git add sources/playlist.m3u
+          git diff --quiet && git diff --staged --quiet || (git commit -m "Auto-update playlist from workflow" && git push)
